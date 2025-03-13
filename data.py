@@ -60,3 +60,9 @@ processor = DatasetProcessor()
 
 processor.process_all_datasets()
 print(processor.get_dataset("Absenteeism_at_work_Project"))
+
+# def ordinal_encode_with_category(self, df, column_name):
+#     categories = ['Below College', 'College', 'Bachelor', 'Master', 'Doctor']
+#     df[column_name] = pd.Categorical(df[column_name], categories=categories, ordered=True)
+#     df[column_name] = df[column_name].cat.codes + 1  # +1 เพื่อให้ 1 เป็นค่าเริ่มต้น
+#     return df
