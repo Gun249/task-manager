@@ -92,7 +92,7 @@ class DatasetProcessor:
             # category_mapping = dict(enumerate(df['Category'].astype('category').cat.categories))
             # print(f"Category Mapping: {category_mapping}")
             # print(f"Skill Mapping: {skill_mapping}")
-            print("Successfully encoded Skill")
+            print("Successfully encoded Skill and Category columns")
 
     def get_dataset(self, name, colums=None):
         # คืนค่า dataset ที่ต้องการ โดยใช้ key ที่กำหนดไว้ใน dictionary
