@@ -82,8 +82,8 @@ class DatasetProcessor:
         
     def endcode(self, df):
         # ตรวจสอบว่ามีคอลัมน์ 'Skill' อยู่ใน DataFrame หรือไม่
-        required_columns = ['Skill']
-        if all(col in df.columns for col in required_columns):
+        required_columns = [['Skill','Category'],["Gender"]]
+        if all(col in df.columns for col in required_columns[0]):
             # เข้ารหัสข้อมูลในคอลัมน์ 'Skill' ให้เป็นตัวเลข โดยใช้ Label Encoding
             df['Category_num'] = df['Category'].astype('category').cat.codes
             df['skill_num'] = df['Skill'].astype('category').cat.codes
@@ -93,6 +93,17 @@ class DatasetProcessor:
             # print(f"Category Mapping: {category_mapping}")
             # print(f"Skill Mapping: {skill_mapping}")
             print("Successfully encoded Skill and Category columns")
+            return df
+        elif all(col in df.columns for col in required_columns[1]):
+            # เข้ารหัสข้อมูลในคอลัมน์ 'Gender' ให้เป็นตัวเลข โดยใช้ Label Encoding
+            df['Gender_num'] = df['Gender'].astype('category').cat.codes
+            print("Successfully encoded Gender column")
+            return df
+        else:
+            print("Encoding not required")
+            return df
+        
+        
 
     def get_dataset(self, name, colums=None):
         # คืนค่า dataset ที่ต้องการ โดยใช้ key ที่กำหนดไว้ใน dictionary
@@ -109,37 +120,7 @@ processor = DatasetProcessor()
 # เรียกใช้กระบวนการประมวลผลทุก dataset ที่อยู่ในโฟลเดอร์
 processor.process_all_datasets()
 # แสดงข้อมูลจาก dataset ที่ชื่อ "Task Catagories"
-# print(processor.get_dataset("Task Catagories"))
+print(processor.get_dataset("hr_dashboard_data"))
 
-################################################################################
-# สิ่งที่เหลืออยู่และต้องทำเพิ่มเติมก่อนเทรนโมเดล:
-# 1. กำหนด Target Variable:
-#    - ระบุเป้าหมายที่แน่ชัดสำหรับโมเดล เช่น "suitability_score" หรือ "match_score"
-#    - สร้างหรือเตรียม label สำหรับการจับคู่สมาชิกกับงาน
-#
-# 2. Preprocess ข้อมูลเพิ่มเติม:
-#    - เข้ารหัส (Encode) ข้อมูลอื่นๆ ที่เป็น categorical ใน datasets เช่น ใน "Task Catagories"
-#      อาจต้องทำ One-Hot Encoding หรือ Label Encoding เพิ่มเติมสำหรับคอลัมน์อื่นๆ เช่น "Category"
-#
-# 3. การเชื่อมโยงข้อมูล (Mapping) ระหว่าง datasets:
-#    - สร้างขั้นตอนการรวมข้อมูลจาก hr_dashboard_data และ Task Catagories
-#      เพื่อใช้สำหรับเทรนโมเดลจับคู่สมาชิกกับงาน โดยอาจใช้ rule-based mapping หรือ feature engineering ระหว่าง datasets
-#
-# 4. แบ่งชุดข้อมูล (Train / Test Split):
-#    - กำหนดวิธีแยกข้อมูลออกเป็นชุดเทรนและชุดทดสอบ เพื่อประเมินประสิทธิภาพของโมเดล
-#
-# 5. การเลือกและออกแบบโมเดล:
-#    - คิดว่าจะใช้เทคนิคโมเดลแบบใด เช่น Recommendation System, Classification, Regression
-#    - กำหนด hyperparameters และสร้าง pipeline สำหรับการเทรนโมเดล
-#
-# 6. การประเมินและปรับปรุงโมเดล:
-#    - กำหนด metrics สำหรับวัดประสิทธิภาพของการจับคู่ (เช่น Precision, Recall, F1-Score)
-#    - วางแผนการปรับแต่งโมเดลและทำ cross-validation
-#
-# 7. การใช้ API Chatbot (LLM) สำหรับการวิเคราะห์ข้อความ:
-#    - นำ Large Language Model (LLM) มาใช้เป็นเครื่องมือช่วยวิเคราะห์โครงสร้างงาน (WBS)
-#      และสร้างชุดคำถามเพื่อประเมินความสามารถของสมาชิก (ขั้นตอน 4.3 และ 4.4)
-#    - ใช้เทคนิค NLP และ Pre-Trained Model เช่น ChatGPT หรือโมเดลที่ผ่านการเทรนล่วงหน้า
-#      เพื่อสรุปข้อมูลจากข้อความที่หัวหน้าทีมป้อนเข้ามาและสร้างคำถามที่สอดคล้องกับขอบเขตงาน
-################################################################################
+
 
