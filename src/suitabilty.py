@@ -45,7 +45,6 @@ class Suitability:
     def compare_pos(self, position, task):
         position_doc = nlp(position)
         similarities = []
-        # สมมุติว่า task เป็น DataFrame ที่มีคอลัมน์ 'Category'
         unique_categories = task['Category'].drop_duplicates()
         for category in unique_categories:
             category_doc = nlp(str(category))

@@ -11,12 +11,13 @@ class feature_enginerr:
             self.df['Prod_norm'] = (self.df['Productivity (%)'] - self.df['Productivity (%)'].min()) / (self.df['Productivity (%)'].max() - self.df['Productivity (%)'].min())
             self.df['Sat_norm'] = (self.df['Satisfaction Rate (%)'] - self.df['Satisfaction Rate (%)'].min()) / (self.df['Satisfaction Rate (%)'].max() - self.df['Satisfaction Rate (%)'].min())
             self.df['Feed_norm'] = (self.df['Feedback Score'] - self.df['Feedback Score'].min()) / (self.df['Feedback Score'].max() - self.df['Feedback Score'].min())
-            
+            self.df.drop(columns=['Projects Completed', 'Productivity (%)', 'Satisfaction Rate (%)', 'Feedback Score'], inplace=True, axis=1)
+
             # กำหนดน้ำหนักสำหรับแต่ละฟีเจอร์
             weight_proj = 0.3
             weight_prod = 0.35
             weight_sat = 0.25
-            weight_feed = 0.1
+            weight_feed = 0.1   
             
             # คำนวณ performance_index โดยรวม normalized value เข้าด้วยกัน
             self.df['performance_index'] = (self.df['Proj_norm'] * weight_proj +

@@ -2,16 +2,17 @@
 สิ่งที่เหลืออยู่และต้องทำเพิ่มเติมก่อนเทรนโมเดล:
 1. กำหนด Target Variable:
    - ระบุเป้าหมายที่แน่ชัดสำหรับโมเดล เช่น "suitability_score" หรือ "match_score"
-   - สร้างหรือเตรียม label สำหรับการจับคู่สมาชิกกับงาน
+   - สร้างหรือเตรียม label สำหรับการจับคู่สมาชิกกับงาน (เสร็จ ) 
 
 2. Preprocess ข้อมูลเพิ่มเติม:
    - เข้ารหัส (Encode) ข้อมูลอื่นๆ ที่เป็น categorical ใน datasets เช่น ใน "Task Catagories"
-     อาจต้องทำ One-Hot Encoding หรือ Label Encoding เพิ่มเติมสำหรับคอลัมน์อื่นๆ เช่น "Category"
+     อาจต้องทำ One-Hot Encoding หรือ Label Encoding เพิ่มเติมสำหรับคอลัมน์อื่นๆ เช่น "Category" 
+     
 
 3. การเชื่อมโยงข้อมูล (Mapping) ระหว่าง datasets:
    - สร้างขั้นตอนการรวมข้อมูลจาก hr_dashboard_data และ Task Catagories
      เพื่อใช้สำหรับเทรนโมเดลจับคู่สมาชิกกับงาน โดยอาจใช้ rule-based mapping หรือ feature engineering ระหว่าง datasets
-
+   
 4. แบ่งชุดข้อมูล (Train / Test Split):
    - กำหนดวิธีแยกข้อมูลออกเป็นชุดเทรนและชุดทดสอบ เพื่อประเมินประสิทธิภาพของโมเดล
 
