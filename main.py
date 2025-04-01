@@ -1,6 +1,8 @@
 from src.data import DatasetProcessor
 from src.suitabilty import Suitability
 from src.datasplit import DataSplitter
+from src.apichatbot import apichatbot
+from src.botcompae import botcompae
 import pandas as pd
 
 
@@ -9,6 +11,8 @@ class main:
         self.ds_processor = DatasetProcessor()
         self.suitabilty = Suitability(self.ds_processor)
         self.datasplit = DataSplitter()
+        self.apichatbot = apichatbot()
+        self.botcompae = botcompae()
 
     def run(self):
         self.ds_processor.process_all_datasets()
@@ -30,22 +34,15 @@ class main:
         print("\nUpdated HR data with suitability scores:")
         # print(hr.head())
 
-        output_file = "updated_hr_data.csv"
-        hr.to_csv(output_file, index=False)
-        print(f"\nExported updated HR data to {output_file}")
-
-        data = self.datasplit.data_split(hr)
-        # print("\nSplitting data...")
-        # print(data)
+    def main(self):
+        Project_details = str(input("กรุณาใส่รายละเอียดของโปรเจกต์: "))
+        Role,Tasks = self.apichatbot.chatbot(Project_details)
+        print("\nRole: ", Role)
+        self.botcompae.model(Role,Tasks)
         
 
 
-
-        # print("\nUpdated HR data:")
-        # print(hr.head())
-
-
 mainrun = main()
-mainrun.run()
+mainrun.main()
 
         
