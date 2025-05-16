@@ -5,9 +5,6 @@ from sentence_transformers import util, SentenceTransformer
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class RoleTaskMatcher:
-    """
-    คลาสสำหรับจับคู่คำอธิบาย Role กับรายการ Tasks โดยใช้ความคล้ายคลึงของประโยค
-    """
     DEFAULT_MODEL_PATH = "models/role_task_siamese_v1" 
     DEFAULT_SIMILARITY_THRESHOLD = 0.4  
 
