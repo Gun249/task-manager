@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 import os
 import re
 
-# โหลดตัวแปรจากไฟล์ .env (เช่น API_KEY)
 load_dotenv()
 
 class apichatbot:
@@ -37,25 +36,28 @@ class apichatbot:
 
         prompt1 = f"""You are an assistant team planner in a software project.
 
-        1. Analyze the content of the project and generate 5 interview questions.  
-        2. Derive key Tasks that are necessary based on the project description. Please include tasks that align with the following four major roles: Backend Developer, Frontend Developer, Project Manager (PM), and UX/UI Designer.  
-        3. The interview questions should be designed for **students** (e.g., university students or interns) in order to understand their interests, learning experiences, technical skills, and problem-solving mindset — so you can determine which **Role** they might be most suited for.  
-        4. Do not mention or assign any Role directly in the questions. Just create thoughtful, open-ended questions that reveal a student's capabilities, preferences, and how they approach problems.  
-        5. The questions must collectively cover aspects relevant to **all four Roles** (Backend Developer, Frontend Developer, PM, and UX/UI Designer), so each student's answer can be analyzed accordingly.  
-        6. The questions should be relevant to the project description and should not be generic.
+        1.  Analyze the content of the project and generate 5 **concise** interview questions.
+        2.  Derive key Tasks that are necessary based on the project description. **Crucially, ensure that all identified tasks are explicitly assigned to, and suitable for, one of the following four major roles *only*:** Backend Developer, Frontend Developer, Project Manager (PM), and UX/UI Designer. Do not list tasks that do not clearly align with one of these specific roles.
+        3.  The interview questions should be designed for **first-year university students or individuals with very foundational technical exposure**. The questions should be **simple and introductory, aiming to gauge basic understanding, enthusiasm for learning, and a general approach to thinking about technology projects**, rather than testing deep existing knowledge. The goal is to understand their interests, initial learning experiences, very basic technical inclinations, and nascent problem-solving mindset — so you can determine which **Role** they might be most suited for or could learn towards.
+        4.  Do not mention or assign any Role directly in the questions. Just create thoughtful, open-ended questions that reveal a student's **foundational understanding**, preferences, and how they approach **simple technical or logical problems**. Questions should encourage them to think and explain in their own terms, even if not highly technical, focusing on "how" and "why" at a basic level.
+        5.  The questions must collectively touch upon **very basic concepts relevant to all four Roles** (Backend Developer, Frontend Developer, PM, and UX/UI Designer), suitable for a first-year student's perspective.
+            The aim is to discover their natural curiosity, initial understanding, and how they articulate their thoughts on these basic concepts.
+        6.  The questions should be **technical in a very light and conceptual sense**, relevant to the project description but framed so a first-year student can relate without prior specific project experience. Avoid complex jargon. The questions should be designed to be answerable by a student at this level, encouraging them to share their thoughts rather than testing for specific correct answers.
 
-        
-        **Project Description:**  
+        **Project Description:**
         {Project_details}
 
-        **Expected Answer Format:**  
-        - ** Question 1 **: …  
-        - ** Question 2 **: …  
+        **Expected Answer Format:**
+        - **Question 1**: …
+        - **Question 2**: …
         (Up to Question 5)
 
         - Identified Tasks:
-            1.  **Role:** ...
-            2.  **Role:** ...
+            1.  **Role:** Backend Developer: (Task description for Backend Developer)
+            2.  **Role:** Frontend Developer: (Task description for Frontend Developer)
+            3.  **Role:** Project Manager (PM): (Task description for PM)
+            4.  **Role:** UX/UI Designer: (Task description for UX/UI Designer)
+            (and so on, ensuring each task clearly states one of the four roles above)
         """
         # เรียก API ให้สร้างเนื้อหา
         try:
@@ -68,7 +70,6 @@ class apichatbot:
             return None, None
 
         # แสดงผลลัพธ์ดิบจาก API
-        print("API Response:\n", response.text)
         lines = response.text.splitlines()
 
         # เคลียร์ตัวแปรก่อนเริ่มแยกข้อมูล
@@ -79,13 +80,16 @@ class apichatbot:
 
         # แยกคำถามและ task
         try:
-            questions, tasks = self.Separate_questions_and_tasks(lines)
-            # ทำความสะอาดชื่อ role ออกจาก task
-            tasks = self.cleand_task(tasks)
-            print("\n tasks:", tasks)
-            print("\n questions:", questions)
-            # ถามผู้ใช้เพื่อรับคำตอบ
-            self.aws_questions(questions)
+            # 1) แยกคำถาม และ raw task
+            self.questions, raw_tasks = self.Separate_questions_and_tasks(lines)
+            # 2) ทำความสะอาดชื่อ Role ออกจาก raw_tasks
+            self.tasks = self.cleand_task(raw_tasks)
+            # 3) ส่งโครงสร้างงานให้หัวหน้าทีมตรวจสอบและยืนยัน
+            if not self.review_tasks_structure(self.tasks):
+                print("โครงสร้างงานไม่ผ่านการยืนยัน เสร็จสิ้นการทำงาน")
+                return None, None
+            # 4) ถามผู้ใช้เพื่อรับคำตอบสำหรับคำถาม
+            self.aws_questions(self.questions)
         except Exception as e:
             print("Error during parsing:", e)
             return None, None
@@ -110,9 +114,10 @@ class apichatbot:
 
             **Available Roles**:  
             - Backend Developer  
-            - Frontend Developer  
             - Project Manager (PM)  
-            - UX/UI Designer  
+            - Frontend Developer  
+            - UX/UI Designer
+            - (Please choose only one Role that best fits the member's answers)
 
             **Question**:  
             {self.questions[0]}  
@@ -140,8 +145,8 @@ class apichatbot:
         except Exception as e:
             print("Error generating content for prompt2:", e)
             return None, None
-
         Role = response2.text.strip()
+        print(f"\nRole: {Role}")
         return Role, self.tasks
 
     def Separate_questions_and_tasks(self, lines):
@@ -184,20 +189,12 @@ class apichatbot:
         return self.questions, self.tasks
 
     def aws_questions(self, question):
-        """
-        วนถามผู้ใช้ทีละคำถามเพื่อรับคำตอบ (input ผ่าน terminal)
-        คำตอบจะถูกเก็บใน self.awser
-        """
         for q in question:
             print("\n", q)
             aws = input("กรุณาใส่คำตอบของคุณ: ")
             self.awser.append(aws)
 
     def cleand_task(self, raw_tasks):
-        """
-        ล้างชื่อ Role ออกจากต้น task (เช่น 'Backend Developer:')
-        แล้วเก็บผลลัพธ์ลง self.cleandtask
-        """
         pattern = re.compile(
             r"^\*{0,2}\s*(Backend Developer|Frontend Developer|Project Manager \(PM\)|UX/UI Designer)\*{0,2}\s*:?\s*",
             re.IGNORECASE
@@ -208,5 +205,18 @@ class apichatbot:
             self.cleandtask.append(cleaned)
 
         return self.cleandtask
+
+    def review_tasks_structure(self, tasks):
+        print("\n--- ตรวจสอบโครงสร้างงาน ---")
+        for i, t in enumerate(tasks, 1):
+            print(f"  {i}. {t}")
+        while True:
+            ans = input("หัวหน้าทีมยืนยันโครงสร้างงานนี้หรือไม่? (Y/N): ").strip().upper()
+            if ans == "Y":
+                return True
+            elif ans == "N":
+                return False
+            else:
+                print("กรุณาใส่ Y หรือ N เท่านั้น")
 
 

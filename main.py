@@ -1,39 +1,13 @@
-# from src.data import DatasetProcessor
-# from src.suitabilty import Suitability
-# from src.datasplit import DataSplitter
-# import pandas as pd
 from src.apichatbot import apichatbot
-from src.botcompae import botcompae
+from src.botcompae import RoleTaskMatcher
 
 
 class main:
     def __init__(self):
-        # self.ds_processor = DatasetProcessor()
-        # self.suitabilty = Suitability(self.ds_processor)
-        # self.datasplit = DataSplitter()
         # สร้างอ็อบเจกต์สำหรับเรียกใช้งาน Chatbot และโมเดลเปรียบเทียบ Role-Task
         self.apichatbot = apichatbot()
-        self.botcompae = botcompae()
+        self.botcompae = RoleTaskMatcher()
 
-    # def run(self):
-        # self.ds_processor.process_all_datasets()
-
-        # hr = self.ds_processor.get_dataset("hr_dashboard_data")
-        # task = self.ds_processor.get_dataset("Task Catagories")
-
-        # print("\nComputing suitability scores...")
-        # scores = self.suitabilty.compute_suitability_scores(hr, task)
-
-        # scores_df = pd.DataFrame(scores)
-
-        # hr["Best_Category"] = scores_df["Best_Category"]
-        # hr["Suitability_Score"] = scores_df["Suitability_Score"]
-        # hr["Composite_score"] = scores_df["Composite_score"]
-
-        
-        # hr.drop(columns=["Department", "Position"], inplace=True, axis=1)
-        # print("\nUpdated HR data with suitability scores:")
-        # print(hr.head())
 
     def main(self):
         # วนลูปจนกว่าจะได้ข้อมูล Role และ Tasks ที่ถูกต้องจาก Chatbot
@@ -48,6 +22,7 @@ class main:
                 print("Error reading project details:", e)
                 continue
 
+
             # เรียก Chatbot เพื่อสร้างคำถาม-คำตอบและดึง Role กับ Tasks
             try:
                 Role, Tasks = self.apichatbot.chatbot(Project_details)
@@ -55,31 +30,33 @@ class main:
                 print("Error during chatbot processing:", e)
                 continue
 
-            # ตรวจสอบความถูกต้องของผลลัพธ์
             if Role is None or Tasks is None:
                 print("\nChatbot did not return valid results. Retrying...")
                 continue
-            if len(self.apichatbot.questions) < 5:
-                print(f"\nInsufficient interview questions extracted (found only {len(self.apichatbot.questions)}). Retrying...")
+            if not hasattr(self.apichatbot, 'questions') or len(self.apichatbot.questions) < 5 :
+                questions_count = len(self.apichatbot.questions) if hasattr(self.apichatbot, 'questions') else 0
+                print(f"\nInsufficient interview questions extracted (found only {questions_count}). Retrying...")
                 continue
-            if not Tasks:
+            if not Tasks: 
                 print("\nNo tasks were extracted. Retrying...")
                 continue
 
-            # ถ้าผ่านทุกเงื่อนไข ให้หยุดลูป
             break
 
-        # แสดง Role ที่ Chatbot วิเคราะห์ได้
-        print("\nRole:", Role)
 
-        # ส่ง Role และ Tasks ไปให้โมเดล Siamese เปรียบเทียบความเหมาะสม
         try:
-            self.botcompae.model(Role, Tasks)
-        except Exception as e:
-            print("Error during role-task matching:", e)
+            suitable_tasks_found = self.botcompae.find_suitable_tasks(Role, Tasks)
+            
+            if suitable_tasks_found:
+                print("\n--- Role-Task Matching Results ---")
+                print(f"For Role: {Role}")
+                print("Suitable tasks found:")
+                for task_text, score in suitable_tasks_found:
+                    print(f"  - Task: \"{task_text}\" (Score: {score:.4f})")
 
-# สร้างอินสแตนซ์และเรียกใช้เมธอด main()
+        except Exception as e:
+            print("Error during role-task matching execution in main:", e)
+
 if __name__ == "__main__":
     mainrun = main()
     mainrun.main()
-
