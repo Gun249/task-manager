@@ -1,22 +1,22 @@
 # Core dependencies for Task Manager - AI-Powered Role-Task Matching System
 
 # Google Generative AI (Gemini API)
-google-genai>=0.3.0
+google-genai
 
 # Environment variable management
-python-dotenv>=1.0.0
+python-dotenv
 
 # Sentence Transformers for semantic similarity
-sentence-transformers>=2.2.0
+sentence-transformers
 
 # PyTorch (required by sentence-transformers)
-torch>=2.0.0
+torch
 
 # Data processing
-pandas>=2.0.0
+pandas
 
 # Natural Language Processing (spaCy)
-spacy>=3.7.0
+spacy
 
 # Download the spaCy English language model after installation:
 # python -m spacy download en_core_web_lg
